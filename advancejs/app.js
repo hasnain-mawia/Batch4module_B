@@ -870,12 +870,17 @@ let ab = [
 //   console.log(mn)
 // }
 // abc()
-let async = async () => {
-  console.log(1);
-  await console.log(2);
-  console.log(3);
-};
+// async function test(){
+//   console.log("message1")
+//   await  console.log("message2")
+//   console.log("message1")
+//   }
+//   test()
+//   console.log("Message5")
 
-async();
-console.log(4);
-console.log(5);
+// let abc = (a = "value is not givin") => {
+//   console.log(a);
+// };
+
+// abc("Hamza");
+// abc();
