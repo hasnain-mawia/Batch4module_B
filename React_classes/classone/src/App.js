@@ -281,6 +281,7 @@ function App() {
   const [allCategories, setAllCategories] = useState([]);
   const [count, setCount] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState("");
+  let [selectedCategoryArr, setSelectedCategoryArr] = useState([]);
 
   const [filterList, setFilterList] = useState([]);
 
@@ -293,19 +294,47 @@ function App() {
 
   // Render Item By DropDown
   let searchCategoryItem = (val) => {
-    setSelectedCategory(val);
-    let filteredList = listData.filter((x) => x.category == val);
+    let filteredList = [];
+    selectedCategoryArr.forEach((y) => {
+      filteredList = [
+        ...filteredList,
+        ...listData.filter(
+          (x) =>
+            x.category == y && x.title.toLowerCase().includes(val.toLowerCase())
+        ),
+      ];
+    });
+
     setFilterList([...filteredList]);
   };
 
   // search Item By DropDown and Input
-  let searchItem = (val) => {
-    let filteredList = listData.filter(
-      (x) =>
-        x.category == selectedCategory &&
-        x.title.toLowerCase().includes(val.toLowerCase())
-    );
-    setFilterList([...filteredList]);
+
+  let selectChip = (val) => {
+    let arr = [...selectedCategoryArr];
+    arr.push(val);
+    arr = [...new Set([...arr])];
+
+    let arr2 = [];
+
+    arr.forEach((y) => {
+      arr2 = [...arr2, ...listData.filter((x) => x.category == y)];
+    });
+
+    setFilterList([...arr2]);
+    setSelectedCategoryArr([...arr]);
+  };
+  let removeCategory = (ind) => {
+    selectedCategoryArr.splice(ind, 1);
+    setSelectedCategoryArr([...selectedCategoryArr]);
+
+    let arr2 = [];
+
+    selectedCategoryArr.forEach((y) => {
+      arr2 = [...arr2, ...listData.filter((x) => x.category == y)];
+    });
+
+    setFilterList([...arr2]);
   };
 
   // it will run when component initialize ...
@@ -316,26 +345,24 @@ function App() {
   return (
     <div className="App">
       <Grid container>
-        <Grid item md={3}>
+        <Grid item md={12}>
           <Box sx={{ padding: 2 }}>
-            <Select
-              labelId="demo-simple-select-standard-label"
-              id="demo-simple-select-standard"
-              label="Category"
-              variant="standard"
-              fullWidth={true}
-              onChange={(e) => searchCategoryItem(e.target.value)}
-              value={selectedCategory}
-            >
-              <MenuItem value="">
-                <em>None</em>
-              </MenuItem>
-              {allCategories.map((e, i) => (
-                <MenuItem key={i} value={e}>
-                  {e}
-                </MenuItem>
-              ))}
-            </Select>
+            {selectedCategoryArr && selectedCategoryArr.length > 0
+              ? selectedCategoryArr.map((x, i) => (
+                  <Chip
+                    key={i}
+                    onDelete={() => removeCategory(i)}
+                    color="primary"
+                    label={x}
+                  />
+                ))
+              : null}
+
+            {allCategories && allCategories.length > 0
+              ? allCategories.map((x, i) => (
+                  <Chip key={i} onClick={() => selectChip(x)} label={x} />
+                ))
+              : null}
           </Box>
         </Grid>
         <Grid item md={9}>
@@ -344,7 +371,7 @@ function App() {
               variant="standard"
               fullWidth={true}
               label="search Item here ..."
-              onChange={(e) => searchItem(e.target.value)}
+              onChange={(e) => searchCategoryItem(e.target.value)}
             />
           </Box>
         </Grid>
