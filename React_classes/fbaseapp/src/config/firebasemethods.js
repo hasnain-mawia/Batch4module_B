@@ -3,8 +3,16 @@ import {
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  onAuthStateChanged,
 } from "firebase/auth";
-import { getDatabase, ref, set, onValue } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  set,
+  onValue,
+  push,
+  onChildAdded,
+} from "firebase/database";
 
 const auth = getAuth(app);
 const database = getDatabase(app);
@@ -20,6 +28,7 @@ let signUpUser = (obj) => {
         // user successfully registerd in authentication
         const user = userCredential.user;
         const refrence = ref(database, `users/${user.uid}`);
+        obj.id = user.uid;
         set(refrence, obj)
           // === this "then" will give the status of database function
           .then(() => {
@@ -66,4 +75,77 @@ let loginUser = (obj) => {
   });
 };
 
-export { signUpUser, loginUser };
+let checkUser = () => {
+  return new Promise((resolve, reject) => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/firebase.User
+        const uid = user.uid;
+        resolve(uid);
+        // ...
+      } else {
+        reject("no user Login");
+        // User is signed out
+        // ...
+      }
+    });
+  });
+};
+
+let sendData = (obj, nodeName, id) => {
+  let postListRef;
+
+  return new Promise((resolve, reject) => {
+    if (id) {
+      // edit case
+      // id is present
+
+      postListRef = ref(database, `${nodeName}/${id}`);
+    } else {
+      // add case
+      // id is not available
+
+      let addRef = ref(database, nodeName);
+
+      obj.id = push(addRef).key;
+
+      postListRef = ref(database, `${nodeName}/${obj.id}`);
+    }
+    set(postListRef, obj)
+      .then(() => {
+        resolve(`Data Send Successfully on this node ${nodeName}/${obj.id}`);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+};
+
+let getData = (nodeName, id) => {
+  let reference = ref(database, `${nodeName}/${id ? id : ""}`);
+  return new Promise((resolve, reject) => {
+    onValue(
+      reference,
+      (snapshot) => {
+        if (snapshot.exists()) {
+          let data = snapshot.val();
+          if (id) {
+            resolve(data);
+          } else {
+            let arr = Object.values(data);
+            resolve(arr);
+          }
+        } else {
+          // no data found
+          reject("No Data Found");
+        }
+      },
+      {
+        onlyOnce: false,
+      }
+    );
+  });
+};
+
+export { signUpUser, loginUser, checkUser, sendData, getData };

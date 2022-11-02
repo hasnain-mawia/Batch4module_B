@@ -1,20 +1,28 @@
 import { Box, Button, TextField } from "@mui/material";
 import { useState } from "react";
 import { loginUser } from "../config/firebasemethods";
+import CircularProgress from "@mui/material/CircularProgress";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setLoader] = useState(false);
+  const navigate = useNavigate();
 
   let login = () => {
+    setLoader(true);
     loginUser({
       email,
       password,
     })
       .then((success) => {
+        setLoader(false);
         console.log(success);
+        navigate(`/${success.id}`);
       })
       .catch((err) => {
+        setLoader(false);
         console.log(err);
       });
   };
@@ -38,8 +46,8 @@ function Login() {
           />
         </Box>
         <Box>
-          <Button onClick={login} variant="contained">
-            Login
+          <Button disabled={isLoading} onClick={login} variant="contained">
+            {isLoading ? <CircularProgress /> : "Login"}
           </Button>
         </Box>
       </Box>

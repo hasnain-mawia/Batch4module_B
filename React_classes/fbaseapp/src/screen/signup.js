@@ -1,12 +1,17 @@
-import { TextField } from "@mui/material";
+import { Button, TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import { useState } from "react";
 import { signUpUser } from "../config/firebasemethods";
+import CircularProgress from "@mui/material/CircularProgress";
+import { useNavigate } from "react-router-dom";
 
 function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setLoader] = useState(false);
+  const navigate = useNavigate();
   let signUp = () => {
+    setLoader(true);
     signUpUser({
       email,
       password,
@@ -14,9 +19,12 @@ function Signup() {
       contact: "31234632",
     })
       .then((success) => {
+        setLoader(false);
         console.log(success);
+        navigate("/login");
       })
       .catch((error) => {
+        setLoader(false);
         console.log(error);
       });
   };
@@ -40,7 +48,9 @@ function Signup() {
           />
         </Box>
       </Box>
-      <button onClick={signUp}>Sign Up</button>
+      <Button variant="contained" disabled={isLoading} onClick={signUp}>
+        {isLoading ? <CircularProgress /> : "Sign Up"}{" "}
+      </Button>
     </>
   );
 }
