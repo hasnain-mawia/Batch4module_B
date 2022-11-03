@@ -16,17 +16,37 @@ import MailIcon from "@mui/icons-material/Mail";
 import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { Route, Router, Routes } from "react-router-dom";
+import { Route, Router, Routes, useNavigate } from "react-router-dom";
 import Quiz from "./quiz";
+import CourceForm from "./courseform";
+import CreateResult from "./createresult";
 
 const drawerWidth = 240;
 
 function MainLyout(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [menuLinks, setMenuLinks] = React.useState([
+    {
+      displayName: "Quiz",
+      routeName: "quiz",
+    },
+    {
+      displayName: "Cource",
+      routeName: "courceform",
+    },
+    {
+      displayName: "Create Result",
+      routeName: "createresult",
+    },
+  ]);
+  const navigate = useNavigate();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+  let clickNavigate = (routeName) => {
+    navigate(routeName);
   };
 
   const drawer = (
@@ -34,26 +54,13 @@ function MainLyout(props) {
       <Toolbar />
       <Divider />
       <List>
-        {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
+        {menuLinks.map((x, i) => (
+          <ListItem key={i} disablePadding>
+            <ListItemButton onClick={() => clickNavigate(x.routeName)}>
               <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                {i % 2 === 0 ? <InboxIcon /> : <MailIcon />}
               </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
-      <Divider />
-      <List>
-        {["All mail", "Trash", "Spam"].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
+              <ListItemText primary={x.displayName} />
             </ListItemButton>
           </ListItem>
         ))}
@@ -138,6 +145,8 @@ function MainLyout(props) {
         <Toolbar />
         <Routes>
           <Route path="quiz" element={<Quiz />} />
+          <Route path="courceform" element={<CourceForm />} />
+          <Route path="createresult" element={<CreateResult />} />
         </Routes>
       </Box>
     </Box>
