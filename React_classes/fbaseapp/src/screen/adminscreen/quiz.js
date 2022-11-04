@@ -13,6 +13,21 @@ function Quiz() {
   const [question, setQuestion] = useState({});
   const [option, setOption] = useState("");
 
+  let arr = [
+    {
+      id: 1,
+      display: "abc",
+    },
+    {
+      id: 2,
+      display: "abc",
+    },
+    {
+      id: 3,
+      display: "abc",
+    },
+  ];
+
   let createQuiz = () => {
     setIsCreateQuiz(true);
   };
@@ -94,6 +109,7 @@ function Quiz() {
                   label="Option"
                 />
               </Grid>
+
               <Grid md={4} item>
                 <SMButton onClick={addOption} label="add" />
               </Grid>

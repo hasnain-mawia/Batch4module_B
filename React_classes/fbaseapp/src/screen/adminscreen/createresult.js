@@ -1,8 +1,9 @@
 import { Box, Grid } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SMButton from "../../config/components/SMButton";
 import SMSelect from "../../config/components/SMSelect";
 import SMSwitch from "../../config/components/SMSwitch";
+import { getData, sendData } from "../../config/firebasemethods";
 
 function CreateResult() {
   const [model, setModel] = useState({});
@@ -11,70 +12,98 @@ function CreateResult() {
     {
       name: "ABC",
       marks: 80,
-      rollNum: "ABC123",
+      rollNum: "ABC100",
       result: "Pass",
     },
     {
       name: "ABC",
       marks: 80,
-      rollNum: "ABC123",
+      rollNum: "ABC101",
       result: "Pass",
     },
     {
       name: "ABC",
       marks: 80,
-      rollNum: "ABC123",
+      rollNum: "ABC102",
       result: "Pass",
     },
     {
       name: "ABC",
       marks: 80,
-      rollNum: "ABC123",
+      rollNum: "ABC103",
       result: "Pass",
     },
     {
       name: "ABC",
       marks: 80,
-      rollNum: "ABC123",
+      rollNum: "ABC104",
       result: "Pass",
     },
     {
       name: "ABC",
       marks: 80,
-      rollNum: "ABC123",
+      rollNum: "ABC105",
       result: "Pass",
     },
     {
       name: "ABC",
       marks: 80,
-      rollNum: "ABC123",
+      rollNum: "ABC106",
       result: "Pass",
     },
     {
       name: "ABC",
       marks: 80,
-      rollNum: "ABC123",
+      rollNum: "ABC107",
       result: "Pass",
     },
     {
       name: "ABC",
       marks: 80,
-      rollNum: "ABC123",
+      rollNum: "ABC108",
       result: "Pass",
     },
     {
       name: "ABC",
       marks: 80,
-      rollNum: "ABC123",
+      rollNum: "ABC109",
       result: "Pass",
     },
   ]);
+  const [resultTableData, setResultTableData] = useState([]);
+  const [loader, setLoader] = useState(false);
 
   let submitForm = () => {
+    setLoader(true);
     model.isShowResult = courceStatus;
     model.result = resultData;
     console.log(model);
+    sendData(model, "results")
+      .then((res) => {
+        setLoader(false);
+        console.log(res);
+      })
+      .catch((err) => {
+        setLoader(false);
+        console.log(err);
+      });
   };
+
+  let getResultData = () => {
+    getData("results")
+      .then((res) => {
+        console.log(res);
+        setResultTableData(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    getResultData();
+  }, []);
+
   return (
     <>
       <h1>Create Result</h1>
@@ -96,6 +125,10 @@ function CreateResult() {
                   id: "wm",
                   fullName: "Web And Mobile",
                 },
+                {
+                  id: "gd",
+                  fullName: "Graphics Designing",
+                },
               ]}
             />
           </Grid>
@@ -114,9 +147,43 @@ function CreateResult() {
             </Box>
           </Grid>
           <Grid md={6} item>
-            <SMButton label="Submit" onClick={submitForm} />
+            <SMButton loading={loader} label="Submit" onClick={submitForm} />
           </Grid>
         </Grid>
+        <Box>
+          <table>
+            {resultTableData.map((x, i) => (
+              <tr>
+                <td>{x.result.length}</td>
+                <td>
+                  <SMSelect
+                    valuefield="id"
+                    displayField="fullName"
+                    value={x.cource}
+                    datasource={[
+                      {
+                        id: "wm",
+                        fullName: "Web And Mobile",
+                      },
+                      {
+                        id: "gd",
+                        fullName: "Graphics Designing",
+                      },
+                    ]}
+                  />{" "}
+                </td>
+                <td>
+                  <SMSwitch
+                    onChange={(e) => {
+                      resultTableData[i].isShowResult = e.target.checked;
+                    }}
+                    value={x.isShowResult}
+                  />
+                </td>
+              </tr>
+            ))}
+          </table>
+        </Box>
       </Box>
     </>
   );
